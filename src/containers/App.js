@@ -2,19 +2,52 @@ import React, { Component } from 'react';
 import classes from './App.css';
 import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
-
+import withClass from '../hoc/withClass';
+import Aux from '../hoc/Auxiliary';
 
 class App extends Component {
 
-  state = {
+  constructor(props) {
+    super(props);
+    console.log('[App.js] constructor');
 
+  }
+
+  state = {
     persons: [
       { id: 'asdfadf', name: 'Max', age: 28 },
       { id: '3ddsf', name: 'Manu', age: 29 },
       { id: '3sdsdf', name: 'Stephanie', age: 26 }
     ],
     otherState: 'some other value',
-    showPersons: false
+    showPersons: false,
+    showCockpit: true,
+    changeCounter: 0
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    console.log('[App.js] , getDerivedStateFromProps', props);
+    return state;
+  }
+
+  // componentWillMount(){
+  //   console.log('[App.js] componentWillMount');
+  // }
+
+
+  //used for fetching data from servers
+  componentDidMount() {
+    console.log('[App.js] componentDidMount');
+  }
+
+  //required to return something, can be used for performance improvements
+  shouldComponentUpdate(nextProps, nextState) {
+    console.log('[App.js] shouldComponentUpdate');
+    return true;
+  }
+
+  componentDidUpdate() {
+    console.log('[App.js] componentDidUpdate');
   }
 
   // switchNameHandler = (newName) => {
@@ -66,10 +99,14 @@ class App extends Component {
     //update the persons array at the index with the new person and their changed name value 
     persons[personIndex] = person;
 
-    //updates the state
-    this.setState({
-      persons: persons
-    })
+    //updates the state, you call set state synchronously here but it's not gauranteed to execute and finish
+    //immediately and therefore when used for a state update is not gauranteed to be the latest state, it could be older
+    this.setState((prevState, props) => {
+      return {
+        persons: persons,
+        changeCounter: prevState.changeCounter + 1
+      };
+    });
   }
 
   togglePersonsHandler = () => {
@@ -80,7 +117,7 @@ class App extends Component {
   }
 
   render() {
-
+    console.log('[App.js] render');
     let persons = null;
 
     //output content conditionally by using javascript and the same for lists
@@ -90,28 +127,35 @@ class App extends Component {
     //it can also provide index
 
     if (this.state.showPersons) {
-      persons = <Persons
-        persons={this.state.persons}
-        clicked={this.deletePersonHandler}
-        changed={this.nameChangedHandler} />;
+      persons =
+        <Persons
+          persons={this.state.persons}
+          clicked={this.deletePersonHandler}
+          changed={this.nameChangedHandler} />;
     }
 
-
-
     return (
-      <div className={classes.App}>
-        <Cockpit
-          showPersons={this.state.showPersons}
-          persons={this.state.persons}
-          clicked={this.togglePersonsHandler}  />
+      <Aux>
+        <button onClick={() => {
+          this.setState({ showCockpit: false });
+        }}
+        >
+          Remove Cockpit
+        </button>
+
+        {this.state.showCockpit ?
+          <Cockpit
+            title={this.props.appTitle}
+            showPersons={this.state.showPersons}
+            personsLength={this.state.persons.length}
+            clicked={this.togglePersonsHandler}
+          /> : null}
         {persons}
-      </div>
-
-
+      </Aux>
     );
 
     //return React.createElement('div', {className: 'App'}, React.createElement('h1',null,'Does this work now?'));
   }
 }
 
-export default App;
+export default withClass(App, classes.App);
