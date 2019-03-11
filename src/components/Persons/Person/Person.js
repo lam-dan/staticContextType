@@ -5,22 +5,52 @@ import Aux from '../../../hoc/Auxiliary';
 import withClass from '../../../hoc/withClass';
 
 import classes from './Person.css';
+import AuthContext from '../../../context/auth-context';
 
 class Person extends Component {
+
+    //constructors require you call super method always
+    constructor(props) {
+        super(props);
+        this.inputElementRef = React.createRef();
+    }
+
+    static contextType = AuthContext;
+
+
+    componentDidMount() {
+        //finds first input box and puts cursor on it
+        // document.querySelector('input').focus();
+        // this.inputElement.focus();
+        this.inputElementRef.current.focus();
+        console.log(this.context.authenticated);
+
+    }
+
+
     render() {
         console.log('[Person.js] rendering...');
-        return(
-        <Aux>
-
-            <p onClick={this.props.click}>I'm {this.props.name} and I am {this.props.age} years old!
+        return (
+            //check if this.prop.isAuth is true, output Authenticated! otherwise output Please Log In!
+            <Aux>
+                <AuthContext.Consumer>
+                    {(context) =>
+                        context.authenticated ? <p>Authenticated!</p> : <p>Please log in</p>
+                    }
+                </AuthContext.Consumer>
+                <p onClick={this.props.click}>I'm {this.props.name} and I am {this.props.age} years old!
                 </p>
-            <p>{this.props.children}</p>
-            <input
-                type="text"
-                onChange={this.props.changed}
-                value={this.props.name}
-            />
-        </Aux>
+                <p key="i2">{this.props.children}</p>
+                <input
+                    key="i3"
+                    //older approach
+                    // ref = {(inputEl) => {this.inputElement = inputEl}}
+                    ref={this.inputElementRef}
+                    type="text"
+                    onChange={this.props.changed}
+                    value={this.props.name}
+                />
+            </Aux>
         );
     }
 }
@@ -32,4 +62,4 @@ Person.propTypes = {
     changed: PropTypes.func
 };
 
-export default withClass(Person,classes.Person);
+export default withClass(Person, classes.Person);
