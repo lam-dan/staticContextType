@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useContext } from 'react';
 
 import classes from './Cockpit.css';
 
@@ -8,7 +8,9 @@ import AuthContext from '../../context/auth-context';
 const cockpit = (props) => {
 
     const toggleBtnRef = useRef(null);
+    const authContext = useContext(AuthContext);
 
+    console.log(authContext.authenticated);
 
     //will run after every render cycle of the cockpit for every update
     // second argument for when you want this method to render, in this case, method only runs when props.person changes
@@ -56,10 +58,10 @@ const cockpit = (props) => {
             <button
                 ref={toggleBtnRef}
                 className={btnClass}
-                onClick={props.clicked}>Toggle Person</button>
-            <AuthContext.Consumer>
-                {(context) => <button onClick={context.login}>Log in</button>}
-            </AuthContext.Consumer>
+                onClick={props.clicked}>Toggle Person
+            </button>
+            <button onClick={authContext.login}>Log in</button>
+
         </div>
     );
 };
